@@ -46,14 +46,14 @@
 		return new Promise((resolve, reject) => {
 			writeApi.getTokens(uid, (err, tokens) => {
 				if(err){
-					console.log('SB OIDC Token: Error while reading user token', err.message)
+					console.log('SB OIDC Token: Error while reading user token', err)
 					reject(err);
 				}
 				if(lodash.isEmpty(tokens)) {
 					console.log('SB OIDC Token: No tokens yet, creating new user token')
 					writeApi.generateToken(uid, (error, newToken) => {
 						if(error){
-							console.log('SB OIDC Token: Error while creating new user token', error.message)
+							console.log('SB OIDC Token: Error while creating new user token',uid, error, newToken)
 							reject(error);
 						}
 						console.log('SB OIDC Token:New token created successfully')
@@ -104,6 +104,8 @@
 						response.result = { "userId" : user, "userSlug": userSlug, "userName": req.body.request.username };
 						console.log('SB OIDC Token: getting checkUserTokens for already register user');
 						try {
+							console.log('SB OIDC Token: checkUserTokens Payload', user);
+
 							const userToken = await Oidc.checkUserTokens(user.uid);
 							console.log("SB OIDC Token: user tokens here", userToken);
 							res.setHeader("nodebb_auth_token", userToken);
@@ -116,7 +118,7 @@
 						response.params.status = "successful";		
 						response.params.msg = "User created successful";		
 						response.result = { "userId" : user, "userSlug": userSlug, "userName": req.body.request.username };
-						// console.log('SB OIDC Token: getting checkUserTokens for newly register user');
+						console.log('SB OIDC Token: getting checkUserTokens for newly register user');
 						try {
 							const userToken = await Oidc.checkUserTokens(user.uid);
 							res.setHeader("nodebb_auth_token", userToken)
