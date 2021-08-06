@@ -69,6 +69,7 @@
 
 
 	Oidc.createUser = async function (req, res, next) {
+		console.log("'SB OIDC Token: Arun repo");
 		var msgid = (req.body.params && req.body.params.msgid)?req.body.params.msgid:"";
 		var response = {
 		  "id": "api.discussions.user.create",
