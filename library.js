@@ -98,13 +98,12 @@
 				rolesEnabled: settings.rolesClaim && settings.rolesClaim.length !== 0,
 				isAdmin: false,
 			}, async (err, user) => {
-				const userSlug = await User.getUserField(user.uid, 'userslug');
-				console.log("'SB OIDC Token: userSlug-", userSlug);
 				console.log('SB OIDC Token: request original url:', req.originalUrl);
 				console.log('SB OIDC Token: request path url:', req.path);
 				console.log('SB OIDC Token: request url:', req.url);
 				console.log('SB OIDC Token: request protocol url:', req.protocol);
 					if(err && err === 'UserExists'){
+						const userSlug = await User.getUserField(user.uid, 'userslug');
 						response.responseCode = "CLIENT_ERROR";
 						response.responseCode = "400";
 						response.params.status = "unsuccessful";
@@ -120,6 +119,7 @@
 							console.log("SB OIDC Token: Error While checkig the tokens", error)
 						}						
 					}else if(user){
+						const userSlug = await User.getUserField(user.uid, 'userslug');
 						response.responseCode = "OK"
 						response.params.status = "successful";		
 						response.params.msg = "User created successful";		
@@ -136,9 +136,11 @@
 					}else{
 						console.log("SB OIDC: Error Log for ", req.originalUrl)
 						response.responseCode = "SERVER_ERROR"
-						response.responseCode = "400"
+						response.responseCode = "400";
+						response.params.error = err.message;
 						console.log(err);
-						res.json(response);						
+						res.status(400);
+						res.send(response);						
 					}				
 					
 			});
