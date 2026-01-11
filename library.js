@@ -11,7 +11,7 @@
 	const url = require('url');
 	const uid = require('uid2');
 	const async = require('async');
-	const request = require('request-promise');
+	const axios = require('axios');
 	const CustomStrategy = require('passport-custom');
 
 	const passport = module.parent.require('passport');
@@ -208,39 +208,38 @@
 
 
 	Oidc.getAccessTokenFromCode = async function (settings, code) {
-		const options = {
-			method: 'POST',
-			url: settings.tokenEndpoint,
-			form: {
-				grant_type: 'authorization_code',
-				client_id: settings.clientId,
-				client_secret: settings.clientSecret,
-				code: code,
-				redirect_uri: settings.callbackURL
+		const formData = new URLSearchParams({
+			grant_type: 'authorization_code',
+			client_id: settings.clientId,
+			client_secret: settings.clientSecret,
+			code: code,
+			redirect_uri: settings.callbackURL
+		});
+
+		const response = await axios.post(settings.tokenEndpoint, formData, {
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
 			}
-		}
-		return request(options);
+		});
+
+		return JSON.stringify(response.data);
 	};
 
 	Oidc.getAccessTokenFromId = async function (settings, id) {
 		const tokenUrl = new URL(settings.ssoTokenEndpoint);
 		tokenUrl.searchParams.append("id", id);
-		const options = {
-			method: 'GET',
-			url: tokenUrl.href
-		}
-		return request(options);
+		
+		const response = await axios.get(tokenUrl.href);
+		return JSON.stringify(response.data);
 	};
 
 	Oidc.getUserInfo = async function (settings, accessToken) {
-		const options = {
-			method: 'GET',
-			url: settings.userInfoEndpoint,
+		const response = await axios.get(settings.userInfoEndpoint, {
 			headers: {
 				'Authorization': 'Bearer ' + accessToken
 			}
-		}
-		return request(options);
+		});
+		return JSON.stringify(response.data);
 	};
 
 	/**
